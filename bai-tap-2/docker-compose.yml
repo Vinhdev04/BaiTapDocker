@@ -1,0 +1,45 @@
+# ══════════════════════════════════════
+# DOCKER COMPOSE — Frontend + Backend
+# Bài Tập 2 — BÀI 6 HUTECH
+# ══════════════════════════════════════
+
+services:
+
+  # ──────────────────────────────────
+  # SERVICE 1: BACKEND (Node.js)
+  # ──────────────────────────────────
+  backend:
+    image: pcvinhx/bai-tap-2-backend
+    container_name: baitap2-backend
+    ports:
+      - "4000:4000"             # Map cổng: host:container
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks:
+      - app-network             # Tham gia mạng nội bộ
+    restart: unless-stopped     # Tự restart nếu crash
+
+  # ──────────────────────────────────
+  # SERVICE 2: FRONTEND (Nginx)
+  # ──────────────────────────────────
+  frontend:
+    image: nginx:alpine         # Dùng Nginx để serve file HTML tĩnh
+    container_name: baitap2-frontend
+    ports:
+      - "8080:80"               # Truy cập qua http://localhost:8080
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro  # Mount thư mục frontend vào Nginx
+    depends_on:
+      - backend                 # Frontend chờ Backend chạy trước
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# ──────────────────────────────────
+# NETWORK: Mạng nội bộ cho các service
+# ──────────────────────────────────
+networks:
+  app-network:
+    driver: bridge
+    name: baitap2-network
